@@ -158,7 +158,7 @@ class Spider:
         self.saveFile(contents,self.dir,fileName)
 
         print("spider 西瓜汽车...")
-        session = self.xigua_auto_login("18620166466","610710")
+        session = self.xigua_auto_login("email","password") #这里需要添加你自己的邮箱和密码
         contents = self.xigua_getContents(session,self.xigua_Qiche_SiteURL)
         contents.insert(0,"From 西瓜汽车:\n")
         contents.append("\n")
