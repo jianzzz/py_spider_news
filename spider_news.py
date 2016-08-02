@@ -4,12 +4,16 @@ __author__ = 'zhuangjian'
 import urllib
 import http.cookiejar
 import re
-import os
+import os,sys
 import time
 import requests
 class Spider:
 
     def __init__(self):
+        if len(sys.argv)>1:
+            self.dir = sys.argv[1]+"/news"
+        else:
+            self.dir = "news"
         self.baidu_SiteURL = 'http://news.baidu.com/'
         self.fenghuang_SiteURL = 'http://news.ifeng.com/'
         self.weibo_SiteURL = 'http://d.weibo.com/100803_-_page_hot_list?cfs=&Pl_Discover_Pt6Rank__5_filter=hothtlist_type%3D1#_0'
@@ -50,7 +54,7 @@ class Spider:
         pattern = re.compile('<li.*?<a.*?>(.*?)</a>', re.S)
         names = re.findall(pattern, hot_words[0])
         for name in names:
-            name = name.replace('<br/>',',').replace('\t','').replace('\n','').replace(' ','')
+            name = name.replace('<br/>','').replace('#','').replace('\t','').replace('\n','').replace(' ','')
             print (name)
             contents.append(name)
         return contents
@@ -66,7 +70,7 @@ class Spider:
         pattern = re.compile('<a.*?>(.*?)</a>', re.S)
         names = re.findall(pattern, tit[0])
         for name in names:
-            name = name.replace('\t','').replace('\n','').replace(' ','')
+            name = name.replace('<br/>','').replace('#','').replace('\t','').replace('\n','').replace(' ','')
             print (name)
             contents.append(name)
         return contents
@@ -83,7 +87,7 @@ class Spider:
         pattern = re.compile('<div.*?class="title W_autocut".*?<span.*?</span>.*?<a.*?>(.*?)</a>', re.S)
         names = re.findall(pattern, pt_li[0])
         for name in names:
-            name = name.replace('\t','').replace('\n','').replace(' ','')
+            name = name.replace('<br/>','').replace('#','').replace('\t','').replace('\n','').replace(' ','')
             print (name)
             contents.append(name)
         return contents
@@ -109,7 +113,7 @@ class Spider:
         pattern = re.compile('<tr.*?<td.*?<a.*?>(.*?)</a>', re.S)
         names = re.findall(pattern, page)
         for name in names:
-            name = name.replace('\t', '').replace('\n', '').replace(' ', '')
+            name = name.replace('<br/>','').replace('#','').replace('\t','').replace('\n','').replace(' ','')
             print(name)
             contents.append(name)
         return contents
@@ -118,8 +122,8 @@ class Spider:
         fileName = dir+"/"+name + ".txt"
         f = open(fileName, "a+")
         for c in content:
-            f.write(c)
-            f.write("\n")
+            f.writelines(c)
+            f.writelines('\r\n')
         f.close()
 
     def mkdir(self,path):
@@ -132,40 +136,39 @@ class Spider:
             return False
 
     def saveInfo(self):
-        dir = "news_"+time.strftime('%Y-%m-%d')
-        self.mkdir(dir)
+        self.mkdir(self.dir)
         fileName = "news_"+time.strftime('%Y-%m-%d_%H_%M_%S')
 
         print ("spider 百度新闻...")
         contents = self.baidu_getContents()
         contents.insert(0,"From 百度新闻:\n")
         contents.append("\n")
-        self.saveFile(contents,dir,fileName)
+        self.saveFile(contents,self.dir,fileName)
 
         print ("spider 凤凰资讯...")
         contents = self.fenghuang_getContents()
         contents.insert(0,"From 凤凰资讯:\n")
         contents.append("\n")
-        self.saveFile(contents,dir,fileName)
+        self.saveFile(contents,self.dir,fileName)
 
         print ("spider 新浪微博发现...")
         contents = self.weibo_getContents()
         contents.insert(0,"From 新浪微博发现:\n")
         contents.append("\n")
-        self.saveFile(contents,dir,fileName)
+        self.saveFile(contents,self.dir,fileName)
 
         print("spider 西瓜汽车...")
         session = self.xigua_auto_login("18620166466","610710")
         contents = self.xigua_getContents(session,self.xigua_Qiche_SiteURL)
         contents.insert(0,"From 西瓜汽车:\n")
         contents.append("\n")
-        self.saveFile(contents,dir,fileName)
+        self.saveFile(contents,self.dir,fileName)
 
         print("spider 西瓜科技...")
         contents = self.xigua_getContents(session,self.xigua_Keji_SiteURL)
         contents.insert(0,"From 西瓜科技:\n")
         contents.append("\n")
-        self.saveFile(contents,dir,fileName)
+        self.saveFile(contents,self.dir,fileName)
 
 spider = Spider()
 spider.saveInfo()
